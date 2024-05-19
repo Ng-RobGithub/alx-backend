@@ -17,14 +17,14 @@ def __init__(self):
     self.load_dataset()
 
 
-def load_dataset(self) -> None:
-    """Loads the dataset from the CSV file."""
+def dataset(self) -> List[List]:
+    """Cached Dataset"""
     if self.__dataset is None:
         with open(self.DATA_FILE) as f:
             reader = csv.reader(f)
-            """ Skip header """
-            next(reader)
-            self.__dataset = list(reader)
+            dataset = [row for row in reader]
+            self.__dataset = dataset[1:]
+            return self.__dataset
 
 
 def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
@@ -43,3 +43,9 @@ def index_range(page: int, page_size: int) -> Tuple[int, int]:
     start = (page - 1) * page_size
     end = start + page_size
     return start, end
+
+
+if __name__ == "__main__":
+    server = Server()
+    page_data = server.get_page(1, 10)
+    print(page_data)
