@@ -1,35 +1,45 @@
 #!/usr/bin/env python3
-""" Simple Pagination """
+"""Simple pagination sample.
+"""
 import csv
-from typing import List
-
-# Corrected import statement for the helper function
-from simple_helper_function import index_range
+from typing import List, Tuple
 
 
 class Server:
-    """Server class to paginate a database of popular baby names."""
+    """Server class to paginate a database of popular baby names.
+    """
     DATA_FILE = "Popular_Baby_Names.csv"
 
 
 def __init__(self):
+    """Initializes a new Server instance and loads the dataset."""
     self.__dataset = None
+    self.load_dataset()
 
 
-def dataset(self) -> List[List]:
-    """Cached dataset"""
+def load_dataset(self) -> None:
+    """Loads the dataset from the CSV file."""
     if self.__dataset is None:
         with open(self.DATA_FILE) as f:
             reader = csv.reader(f)
-            dataset = [row for row in reader]
-            self.__dataset = dataset[1:]  # Exclude header
-            return self.__dataset
+            """ Skip header """
+            next(reader)
+            self.__dataset = list(reader)
 
 
 def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-    """Get the page of the dataset"""
-    assert type(page) is int and page > 0
-    assert type(page_size) is int and page_size > 0
+    """Retrieves a page of data from the dataset."""
+    assert isinstance(page, int) and isinstance(page_size, int)
+    assert page > 0 and page_size > 0
 
-    start, end = index_range(page, page_size)
-    return self.dataset()[start:end]
+    start, end = self.index_range(page, page_size)
+    return self.__dataset[start:end]
+
+
+@staticmethod
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """Calculates the start and end indices for the given page and page size.
+    """
+    start = (page - 1) * page_size
+    end = start + page_size
+    return start, end
