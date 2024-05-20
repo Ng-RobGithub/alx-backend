@@ -2,7 +2,8 @@
 """Simple pagination sample.
 """
 import csv
-from typing import List, Tuple
+import math
+from typing import List
 
 
 class Server:
@@ -14,7 +15,6 @@ class Server:
 def __init__(self):
     """Initializes a new Server instance and loads the dataset."""
     self.__dataset = None
-    self.load_dataset()
 
 
 def dataset(self) -> List[List]:
@@ -28,24 +28,28 @@ def dataset(self) -> List[List]:
 
 
 def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-    """Retrieves a page of data from the dataset."""
-    assert isinstance(page, int) and isinstance(page_size, int)
-    assert page > 0 and page_size > 0
+    """Get a page of the dataset.
 
-    start, end = self.index_range(page, page_size)
-    return self.__dataset[start:end]
+        Args:
+            page (int): The page number to retrieve. Default is 1.
+            page_size (int): The number of items per page. Default is 10.
 
+        Returns:
+            List[List]: The requested page of the dataset.
+                        An empty list if the page is out of range.
+        """
+    assert isinstance(page, int) and page > 0
+    "page must be a positive integer "
+    assert isinstance(page_size, int) and page_size > 0
+    "page size must bepositive integer"
 
-@staticmethod
-def index_range(page: int, page_size: int) -> Tuple[int, int]:
-    """Calculates the start and end indices for the given page and page size.
-    """
-    start = (page - 1) * page_size
-    end = start + page_size
-    return start, end
+    dataset = self.dataset()
+    total_items = len(dataset)
+    total_pages = math.ceil(total_items / page_size)
 
+    if page < 1 or page > total_pages:
+        return []
 
-if __name__ == "__main__":
-    server = Server()
-    page_data = server.get_page(1, 10)
-    print(page_data)
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    return dataset[start_index:end_index]
