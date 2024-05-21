@@ -1,42 +1,31 @@
-#!/usr/bin/python3
-""" MRU caching """
-
-from base_caching import BaseCaching
+#!/usr/bin/env python3
+"""Most Recently Used caching module."""
 from collections import OrderedDict
+from base_caching import BaseCaching
 
 
 class MRUCache(BaseCaching):
-    """ MRU cache class """
-
+    """Represents a cache with Most Recently Used (MRU) removal policy."""
     def __init__(self):
-        """ Initialize MRU cache """
+        """Initializes the cache."""
         super().__init__()
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """ Add an item in the cache """
+        """Adds an item to the cache."""
         if key is None or item is None:
             return
-
-        if len(self.cache_data) >= BaseCaching.MAX_ITEMS \
-                and key not in self.cache_data:
-            last_used_key = next(reversed(self.cache_data))
-            del self.cache_data[last_used_key]
-            print("DISCARD:", last_used_key)
-
-        self.cache_data[key] = item
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                mru_key, _ = self.cache_data.popitem(last=False)
+                print("DISCARD:", mru_key)
+            self.cache_data[key] = item
+            self.cache_data.move_to_end(key, last=False)
+        else:
+            self.cache_data[key] = item
 
     def get(self, key):
-        """ Retrieve an item from cache """
-        if key is None or key not in self.cache_data:
-            return None
-
-        value = self.cache_data.pop(key)
-        self.cache_data[key] = value
-        return value
-
-    def print_cache(self):
-        """ Print cache content """
-        print("Current cache:")
-        for key, value in self.cache_data.items():
-            print("{}: {}".format(key, value))
+        """Retrieves an item from the cache."""
+        if key is not None and key in self.cache_data:
+            self.cache_data.move_to_end(key, last=False)
+        return self.cache_data.get(key, None)
