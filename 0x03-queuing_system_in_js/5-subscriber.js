@@ -1,7 +1,8 @@
-#!/usr/bin/yarn dev
+#!/usr/bin/env node
 import { createClient } from 'redis';
 
 const client = createClient();
+
 const EXIT_MSG = 'KILL_SERVER';
 
 client.on('error', (err) => {
@@ -10,14 +11,13 @@ client.on('error', (err) => {
 
 client.on('connect', () => {
   console.log('Redis client connected to the server');
+  client.subscribe('holberton school channel');
 });
 
-client.subscribe('holberton school channel');
-
-client.on('message', (_err, msg) => {
-  console.log(msg);
-  if (msg === EXIT_MSG) {
-    client.unsubscribe();
+client.on('message', (_channel, message) => {
+  console.log(message);
+  if (message === EXIT_MSG) {
+    client.unsubscribe('holberton school channel');
     client.quit();
   }
 });
